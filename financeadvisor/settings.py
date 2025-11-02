@@ -136,3 +136,12 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATIC_URL = '/static/'
+
+# Email Settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'hemanthreddi9705@gmail.com'  # Replace with admin email
+EMAIL_HOST_PASSWORD = 'rmph lulr yklk pfec'  # Use Gmail App Password (not normal password)
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

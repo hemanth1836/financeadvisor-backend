@@ -8,6 +8,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.http import HttpResponse
 from scipy import stats
+from django.core.mail import send_mail
+
 
 from advisor.serializer import ContactMessageSerializer, PredictionRecordSerializer
 from .train_model import predict_from_user_input
@@ -214,6 +216,34 @@ def get_history(request):
 def contact_message(request):
     serializer = ContactMessageSerializer(data=request.data)
     if serializer.is_valid():
-        serializer.save()
+        message = serializer.save()
+
+        # Extract data
+        name = message.name
+        email = message.email
+        msg = message.message
+
+        # 📩 Send email to admin
+        subject = f"New Contact Form Submission from {name}"
+        body = f"""
+        You have received a new message from the Finance Advisor contact form.
+
+        👤 Name: {name}
+        📧 Email: {email}
+
+        💬 Message:
+        {msg}
+        """
+
+        try:
+            send_mail(
+                subject=subject,
+                message=body,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[settings.EMAIL_HOST_USER],  # send to admin
+                fail_silently=False,
+            )
+        except Exception as e:
+            print("Error sending email:", e)
         return Response({"message": "Message received successfully!"}, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
