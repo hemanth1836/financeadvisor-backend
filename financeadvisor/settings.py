@@ -137,11 +137,10 @@ CORS_ALLOW_ALL_ORIGINS = True
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATIC_URL = '/static/'
 
-# Email Settings
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.sendgrid.net"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'hemanthreddi9705@gmail.com'  # Replace with admin email
-EMAIL_HOST_PASSWORD = 'rmph lulr yklk pfec'  # Use Gmail App Password (not normal password)
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+EMAIL_HOST_USER = "apikey"  # fixed username for SendGrid
+EMAIL_HOST_PASSWORD = os.getenv("SENDGRID_API_KEY")  # from Render environment variables
+DEFAULT_FROM_EMAIL = "hemanthreddi9705@gmail.com"  # your verified sender email

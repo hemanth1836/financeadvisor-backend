@@ -5,6 +5,8 @@ import traceback
 from django.conf import settings
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
 from rest_framework import status
 from django.http import HttpResponse
 from scipy import stats
@@ -223,8 +225,8 @@ def contact_message(request):
         email = message.email
         msg = message.message
 
-        # 📩 Send email to admin
-        subject = f"New Contact Form Submission from {name}"
+        # 📩 Email setup
+        subject = f"📩 New Contact Message from {name}"
         body = f"""
         You have received a new message from the Finance Advisor contact form.
 
@@ -236,14 +238,22 @@ def contact_message(request):
         """
 
         try:
-            send_mail(
+            # ✅ SendGrid mail object
+            mail = Mail(
+                from_email='hemanthreddi9705@gmail.com',  # must be verified sender in SendGrid
+                to_emails='hemanthreddi9705@gmail.com',     # your admin email
                 subject=subject,
-                message=body,
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[settings.EMAIL_HOST_USER],  # send to admin
-                fail_silently=False,
+                plain_text_content=body
             )
+            mail.reply_to = email  # allows admin to reply directly to user
+
+            sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
+            sg.send(mail)
+
+            return Response({"message": "✅ Message sent successfully!"}, status=status.HTTP_201_CREATED)
+
         except Exception as e:
-            print("Error sending email:", e)
-        return Response({"message": "Message received successfully!"}, status=status.HTTP_201_CREATED)
+            print("SendGrid error:", e)
+            return Response({"error": "❌ Failed to send email"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
